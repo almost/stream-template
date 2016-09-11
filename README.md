@@ -48,13 +48,13 @@ var ST = require('stream-template');
 let data = [fs.createReadStream('part1.txt'), fs.createReadStream('part2.txt')];
 let output = ST`Data follows: ${data}`;
 output.pipe(process.stdout);
-`
+```
 
 And also Promises:
 
 ```javascript
-var ST = require('stream-template');
-var request = require('request');
+var ST = require('./stream-template');
+var fetch = require('node-fetch');
 
 var email = fetch('https://api.github.com/users/almost')
     .then(r => r.json())
