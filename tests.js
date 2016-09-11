@@ -1,3 +1,4 @@
+'use strict';
 var ST = require('./stream-template');
 var expect = require('expect.js');
 var concat = require('concat-stream');
