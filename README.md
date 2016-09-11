@@ -75,12 +75,20 @@ output.pipe(process.stdout);
 
 I've shown each used seperated but you can do it all mixed together as well.
 
+Encoding
+--------
+
+By default strings are encoded as utf-8, you can change the encoding like this:
+
+```
+var ST = require('stream-template').encoding('utf16le');
+```
+
+Note that buffers and other streams are passed through as-is, the encoding only
+effects the template strings and interpolated strings. 
 
 Contributing
 ------------
 
 Fixed or improved stuff? Great! Send me a pull request [through GitHub](http://github.com/almost/stream-template)
-or get in touch on Twitter [@almostobsolete][#tom-twitter] or email at tom@almostobsolete.net
-
-[#tom]: http://www.almostobsolete.net
-[#tom-twitter]: https://twitter.com/almostobsolete
+or get in touch on Twitter [@almostobsolete](https://twitter.com/almostobsolete) or email at tom@almostobsolete.net

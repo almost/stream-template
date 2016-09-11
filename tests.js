@@ -13,6 +13,7 @@ describe('stream-template', function () {
   it('should produce a stream as output', function (done) {
     var out = ST`Hello world`;
     out.pipe(concat(function (output) {
+      expect(Buffer.isBuffer(output)).equal(true);
       expect(output.toString()).equal('Hello world');
       done();
     }));
@@ -24,6 +25,16 @@ describe('stream-template', function () {
     var out = ST`Hello ${name}, welcome to the ${test} test`;
     out.pipe(concat(function (output) {
       expect(output.toString()).equal('Hello tom, welcome to the string test');
+      done();
+    }));
+  });
+
+  it('should interpolate buffers ', function (done) {
+    var name = new Buffer('tom', 'utf8')
+    var test = new Buffer('buffer', 'utf8');
+    var out = ST`Hello ${name}, welcome to the ${test} test`;
+    out.pipe(concat(function (output) {
+      expect(output.toString()).equal('Hello tom, welcome to the buffer test');
       done();
     }));
   });
@@ -101,40 +112,24 @@ describe('stream-template', function () {
     }));
   });
 
-  xit('should pass on errors from interpolated streams', function (done) {
-    var stream1 = makeStream();
-    var out = ST`Oh no ${stream1}!`;
-    stream1.push('error in 3... 2...');
-    out.on('error', function (error) {
-      expect(error.message).equal('boom');
-      done();
-    });
-
-    stream1.emit('error', new Error('boom'));
-  });
-
-  xit('should pass on errors from interpolated promises', function (done) {
-    var promise = Promise.reject(new Error("boom"));
-    var out = ST`Oh no ${promise}!`;
-    out.on('error', function (error) {
-      expect(error.message).equal('boom');
+  it('should concatenate multiple strings together and emit as a single chunk', function (done) {
+    var promise = Promise.resolve('d');
+    var out = ST`a ${'b'} c ${promise} e ${['f', ' g']}`;
+    let chunks = [];
+    out.on('data', chunk => chunks.push(chunk.toString()));
+    out.on('end', () => {
+      expect(chunks).eql(['a b c ', 'd e f g']);
       done();
     });
   });
 
-  // it('should pass back backpreasure signals', function () {
-    
-  // });
-
-  // it('should treat strings as utf8 by default', function () {
-    
-  // });
-
-  // it('should allow string encoding to be set', function () {
-    
-  // });
-
-  // it('should treat buffers as containing utf8 strings', function () {
-    
-  // });
+  it('should allow different encodings to be specified', function (done) {
+    var name = new Buffer('tom', 'utf16le')
+    var test = "encoding";
+    var out = ST.encoding('utf16le')`Hello ${name}, welcome to the ${test} test`;
+    out.pipe(concat(function (output) {
+      expect(output.toString('utf16le')).equal('Hello tom, welcome to the encoding test');
+      done();
+    }));
+  });
 });
