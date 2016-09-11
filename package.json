@@ -1,0 +1,45 @@
+{
+  "name": "stream-template",
+  "version": "0.0.1",
+  "description": "Replace one string with another in a Node.JS Stream",
+  "main": "stream-template.js",
+  "files": [
+    "stream-template.js"
+  ],
+  "scripts": {
+    "test": "mocha tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/almost/stream-template"
+  },
+  "keywords": [
+    "streams",
+    "stream",
+    "streaming",
+    "streams2",
+    "template",
+    "taggedliteral",
+    "literal",
+    "string",
+    "es6",
+    "templating"
+  ],
+  "author": {
+    "name": "Thomas Parslow",
+    "email": "tom@almostobsolete.net",
+    "url": "http://almostobsolete.net/"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/almost/stream-template/issues"
+  },
+  "devDependencies": {
+    "concat-stream": "^1.5.2",
+    "expect.js": "^0.3.1",
+    "mocha": "^2.2.1"
+  },
+  "dependencies": {
+    "combined-stream2": "^1.1.2"
+  }
+}
