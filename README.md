@@ -80,7 +80,7 @@ Encoding
 
 By default strings are encoded as utf-8, you can change the encoding like this:
 
-```
+```javascript
 var ST = require('stream-template').encoding('utf16le');
 ```
 
