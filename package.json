@@ -1,6 +1,6 @@
 {
   "name": "stream-template",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Replace one string with another in a Node.JS Stream",
   "main": "stream-template.js",
   "files": [
