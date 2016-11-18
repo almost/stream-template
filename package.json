@@ -1,7 +1,7 @@
 {
   "name": "stream-template",
-  "version": "0.0.2",
-  "description": "Replace one string with another in a Node.JS Stream",
+  "version": "0.0.3",
+  "description": "An ES6 Tagged String Literal tag that can interpolate Node.JS streams, strings, arrays and Promises and produces a stream.,",
   "main": "stream-template.js",
   "files": [
     "stream-template.js"
