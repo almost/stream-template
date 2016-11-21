@@ -6,7 +6,8 @@ var Readable = stream.Readable;
 // Use template literals to allow a template where the variables are streams,
 // the output as a whole is also a stream.
 function makeForEncoding(encoding) {
-  return function StreamTemplate(strings, ...iterpolations) {
+  return function StreamTemplate(strings/*, ...interpolations*/) {
+    const interpolations = Array.prototype.slice.call(arguments, 1);
     let queue = [], stringBuffer = [], shouldContinue = true,
         awaitingPromise = false,
         currentStream = null, wantsData = false, currentStreamHasData = false;
@@ -96,8 +97,8 @@ function makeForEncoding(encoding) {
     }
 
     queue.push(strings[0]);
-    for (let i = 0; i < iterpolations.length; i++) {
-      queue.push(iterpolations[i]);
+    for (let i = 0; i < interpolations.length; i++) {
+      queue.push(interpolations[i]);
       queue.push(strings[i+1]);
     }
 

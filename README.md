@@ -16,7 +16,7 @@ Written by Thomas Parslow ([almostobsolete.net](http://almostobsolete.net) and
 
 [![Build Status](https://travis-ci.org/almost/stream-template.svg)](https://travis-ci.org/almost/stream-template)
 
-Warning: will only run on newer versions of Node.JS (tested on 6.5.0)
+Warning: will only run on newer versions of Node.JS (tested on 4.0.0 and above)
 
 
 Install
