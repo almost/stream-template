@@ -1,4 +1,5 @@
 'use strict';
+var eos = require('end-of-stream');
 var stream = require('readable-stream');
 var PassThrough = stream.PassThrough;
 var Readable = stream.Readable;
@@ -11,6 +12,12 @@ function makeForEncoding(encoding) {
     let queue = [], stringBuffer = [], shouldContinue = true,
         awaitingPromise = false,
         currentStream = null, wantsData = false, currentStreamHasData = false;
+
+    function forwardDestroy (stream) {
+      eos(stream, err => {
+        if (err) readable.destroy(err);
+      });
+    }
 
     function read(size) {
       wantsData = true;
@@ -81,7 +88,7 @@ function makeForEncoding(encoding) {
                   read();
                 },
                 err => {
-                  readable.emit('error', err);
+                  readable.destroy(err);
                 }
               );
           }
@@ -92,17 +99,30 @@ function makeForEncoding(encoding) {
         } else {
           // Combine plain strings together to avoid extra chunks
           stringBuffer.push(new Buffer('' + item, encoding));
-        } 
+        }
       }
+    }
+
+    function destroy (err, cb) {
+      for (let i = 0; i < interpolations.length; i++) {
+        if (interpolations[i].pipe && interpolations[i].destroy) {
+          interpolations[i].destroy();
+        }
+      }
+
+      readable.push(null);
+      cb(err);
     }
 
     queue.push(strings[0]);
     for (let i = 0; i < interpolations.length; i++) {
+      // is stream, error handle right away
+      if (interpolations[i].pipe) forwardDestroy(interpolations[i])
       queue.push(interpolations[i]);
       queue.push(strings[i+1]);
     }
 
-    var readable = new Readable({read});
+    var readable = new Readable({read, destroy});
     return readable;
   };
 }

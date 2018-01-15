@@ -2,7 +2,7 @@
 var ST = require('./stream-template');
 var expect = require('expect.js');
 var concat = require('concat-stream');
-var stream = require('stream');
+var stream = require('readable-stream');
 
 function makeStream() {
   return new stream.Readable({
@@ -132,5 +132,37 @@ describe('stream-template', function () {
       expect(output.toString('utf16le')).equal('Hello tom, welcome to the encoding test');
       done();
     }));
+  });
+
+  it('should forward stream errors', function (done) {
+    var s = makeStream();
+    var out = ST`${s}`;
+
+    out.on('error', function (err) {
+      expect(err.message).equal('destroyed');
+      done();
+    });
+
+    s.destroy(new Error('destroyed'));
+  });
+
+  it('should destroy source streams on error', function (done) {
+    var destroyed = false;
+    var s = stream.Readable({
+      read: function () {},
+      destroy: function () {
+        destroyed = true;
+        s.emit('close');
+      }
+    });
+
+    var out = ST`${s}`;
+
+    s.on('close', function () {
+      expect(destroyed).equal(true);
+      done();
+    });
+
+    out.destroy();
   });
 });
