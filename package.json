@@ -40,6 +40,7 @@
     "mocha": "^2.2.1"
   },
   "dependencies": {
+    "end-of-stream": "^1.4.1",
     "readable-stream": "^2.1.5"
   },
   "engines": {
