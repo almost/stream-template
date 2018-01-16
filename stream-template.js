@@ -10,6 +10,7 @@ function makeForEncoding(encoding) {
   return function StreamTemplate(strings/*, ...interpolations*/) {
     const interpolations = Array.prototype.slice.call(arguments, 1);
     let queue = [], stringBuffer = [], shouldContinue = true,
+        destroyed = false,
         awaitingPromise = false,
         currentStream = null, wantsData = false, currentStreamHasData = false;
 
@@ -20,6 +21,7 @@ function makeForEncoding(encoding) {
     }
 
     function read(size) {
+      if (destroyed) return;
       wantsData = true;
       if (currentStream) {
         if (currentStreamHasData) {
@@ -34,7 +36,7 @@ function makeForEncoding(encoding) {
         return;
       }
       if (awaitingPromise) return;
-      while (true) {
+      while (!destroyed) {
         if (queue.length === 0) {
           if (stringBuffer.length) {
             let toWrite = Buffer.concat(stringBuffer);
@@ -103,15 +105,18 @@ function makeForEncoding(encoding) {
       }
     }
 
-    function destroy (err, cb) {
+    function destroy (err) {
+      if (destroyed) return;
+      destroyed = true;
+
       for (let i = 0; i < interpolations.length; i++) {
         if (interpolations[i].pipe && interpolations[i].destroy) {
           interpolations[i].destroy();
         }
       }
 
-      readable.push(null);
-      cb(err);
+      if (err) readable.emit('error', err);
+      readable.emit('close');
     }
 
     queue.push(strings[0]);
