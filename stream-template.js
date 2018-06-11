@@ -1,20 +1,24 @@
-'use strict';
-var eos = require('end-of-stream');
-var stream = require('readable-stream');
+"use strict";
+var eos = require("end-of-stream");
+var stream = require("readable-stream");
 var PassThrough = stream.PassThrough;
 var Readable = stream.Readable;
 
 // Use template literals to allow a template where the variables are streams,
 // the output as a whole is also a stream.
 function makeForEncoding(encoding) {
-  return function StreamTemplate(strings/*, ...interpolations*/) {
+  return function StreamTemplate(strings /*, ...interpolations*/) {
     const interpolations = Array.prototype.slice.call(arguments, 1);
-    let queue = [], stringBuffer = [], shouldContinue = true,
-        destroyed = false,
-        awaitingPromise = false,
-        currentStream = null, wantsData = false, currentStreamHasData = false;
+    let queue = [],
+      stringBuffer = [],
+      shouldContinue = true,
+      destroyed = false,
+      awaitingPromise = false,
+      currentStream = null,
+      wantsData = false,
+      currentStreamHasData = false;
 
-    function forwardDestroy (stream) {
+    function forwardDestroy(stream) {
       eos(stream, err => {
         if (err) readable.destroy(err);
       });
@@ -52,7 +56,7 @@ function makeForEncoding(encoding) {
         if (item != null) {
           if (Array.isArray(item)) {
             queue = item.concat(queue);
-          } else if (typeof item === 'object' && item.then || item.pipe) {
+          } else if ((typeof item === "object" && item.then) || item.pipe) {
             if (stringBuffer.length) {
               queue.unshift(item);
               let toWrite = Buffer.concat(stringBuffer);
@@ -66,13 +70,13 @@ function makeForEncoding(encoding) {
               currentStream = new PassThrough();
               currentStreamHasData = false;
               item.pipe(currentStream);
-              currentStream.once('end', () => {
+              currentStream.once("end", () => {
                 currentStream = null;
                 if (wantsData) {
                   read();
                 }
-              })
-              currentStream.on('readable', () => {
+              });
+              currentStream.on("readable", () => {
                 currentStreamHasData = true;
                 if (wantsData) {
                   read();
@@ -83,17 +87,16 @@ function makeForEncoding(encoding) {
             } else {
               // Promise!
               awaitingPromise = true;
-              item
-                .then(
-                  result => {
-                    awaitingPromise = false;
-                    queue.unshift(result);
-                    read();
-                  },
-                  err => {
-                    readable.destroy(err);
-                  }
-                );
+              item.then(
+                result => {
+                  awaitingPromise = false;
+                  queue.unshift(result);
+                  read();
+                },
+                err => {
+                  readable.destroy(err);
+                }
+              );
             }
             // Exit out of this loop (we'll have called read again if needed)
             return;
@@ -101,13 +104,13 @@ function makeForEncoding(encoding) {
             stringBuffer.push(item);
           } else {
             // Combine plain strings together to avoid extra chunks
-            stringBuffer.push(new Buffer('' + item, encoding));
+            stringBuffer.push(new Buffer("" + item, encoding));
           }
         }
       }
     }
 
-    function destroy (err) {
+    function destroy(err) {
       if (destroyed) return;
       destroyed = true;
 
@@ -117,22 +120,23 @@ function makeForEncoding(encoding) {
         }
       }
 
-      if (err) readable.emit('error', err);
-      readable.emit('close');
+      if (err) readable.emit("error", err);
+      readable.emit("close");
     }
 
     queue.push(strings[0]);
     for (let i = 0; i < interpolations.length; i++) {
       // is stream, error handle right away
-      if (interpolations[i] != null && interpolations[i].pipe) forwardDestroy(interpolations[i])
+      if (interpolations[i] != null && interpolations[i].pipe)
+        forwardDestroy(interpolations[i]);
       queue.push(interpolations[i]);
-      queue.push(strings[i+1]);
+      queue.push(strings[i + 1]);
     }
 
-    var readable = new Readable({read, destroy});
+    var readable = new Readable({ read, destroy });
     return readable;
   };
 }
 
-module.exports = makeForEncoding('utf8');
+module.exports = makeForEncoding("utf8");
 module.exports.encoding = makeForEncoding;
