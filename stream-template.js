@@ -49,58 +49,60 @@ function makeForEncoding(encoding) {
           break;
         }
         let item = queue.shift();
-        if (Array.isArray(item)) {
-          queue = item.concat(queue);
-        } else if (typeof item === 'object' && item.then || item.pipe) {
-          if (stringBuffer.length) {
-            queue.unshift(item);
-            let toWrite = Buffer.concat(stringBuffer);
-            stringBuffer.length = 0;
-            if (readable.push(toWrite) !== false) {
-              read();
+        if (item != null) {
+          if (Array.isArray(item)) {
+            queue = item.concat(queue);
+          } else if (typeof item === 'object' && item.then || item.pipe) {
+            if (stringBuffer.length) {
+              queue.unshift(item);
+              let toWrite = Buffer.concat(stringBuffer);
+              stringBuffer.length = 0;
+              if (readable.push(toWrite) !== false) {
+                read();
+              }
+              return;
             }
-            return;
-          }
-          if (item.pipe) {
-            currentStream = new PassThrough();
-            currentStreamHasData = false;
-            item.pipe(currentStream);
-            currentStream.once('end', () => {
-              currentStream = null;
-              if (wantsData) {
-                read();
-              }
-            })
-            currentStream.on('readable', () => {
-              currentStreamHasData = true;
-              if (wantsData) {
-                read();
-              }
-            });
-            currentStreamHasData = true;
-            read();
-          } else {
-            // Promise!
-            awaitingPromise = true;
-            item
-              .then(
-                result => {
-                  awaitingPromise = false;
-                  queue.unshift(result);
+            if (item.pipe) {
+              currentStream = new PassThrough();
+              currentStreamHasData = false;
+              item.pipe(currentStream);
+              currentStream.once('end', () => {
+                currentStream = null;
+                if (wantsData) {
                   read();
-                },
-                err => {
-                  readable.destroy(err);
                 }
-              );
+              })
+              currentStream.on('readable', () => {
+                currentStreamHasData = true;
+                if (wantsData) {
+                  read();
+                }
+              });
+              currentStreamHasData = true;
+              read();
+            } else {
+              // Promise!
+              awaitingPromise = true;
+              item
+                .then(
+                  result => {
+                    awaitingPromise = false;
+                    queue.unshift(result);
+                    read();
+                  },
+                  err => {
+                    readable.destroy(err);
+                  }
+                );
+            }
+            // Exit out of this loop (we'll have called read again if needed)
+            return;
+          } else if (Buffer.isBuffer(item)) {
+            stringBuffer.push(item);
+          } else {
+            // Combine plain strings together to avoid extra chunks
+            stringBuffer.push(new Buffer('' + item, encoding));
           }
-          // Exit out of this loop (we'll have called read again if needed)
-          return;
-        } else if (Buffer.isBuffer(item)) {
-          stringBuffer.push(item);
-        } else {
-          // Combine plain strings together to avoid extra chunks
-          stringBuffer.push(new Buffer('' + item, encoding));
         }
       }
     }
@@ -122,7 +124,7 @@ function makeForEncoding(encoding) {
     queue.push(strings[0]);
     for (let i = 0; i < interpolations.length; i++) {
       // is stream, error handle right away
-      if (interpolations[i].pipe) forwardDestroy(interpolations[i])
+      if (interpolations[i] != null && interpolations[i].pipe) forwardDestroy(interpolations[i])
       queue.push(interpolations[i]);
       queue.push(strings[i+1]);
     }

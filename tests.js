@@ -165,4 +165,14 @@ describe('stream-template', function () {
 
     out.destroy();
   });
+
+  it('should handle undefined interpolations', function (done) {
+    var name = 'tom';
+    var test = undefined;
+    var out = ST`Hello ${name}, welcome to the ${test} test`;
+    out.pipe(concat(function (output) {
+      expect(output.toString()).equal('Hello tom, welcome to the  test');
+      done();
+    }));
+  })
 });
