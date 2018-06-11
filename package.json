@@ -1,6 +1,6 @@
 {
   "name": "stream-template",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description":
     "An ES6 Tagged String Literal tag that can interpolate Node.JS streams, strings, arrays and Promises and produces a stream.,",
   "main": "stream-template.js",
