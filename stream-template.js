@@ -11,7 +11,6 @@ function makeForEncoding(encoding) {
     const interpolations = Array.prototype.slice.call(arguments, 1);
     let queue = [],
       stringBuffer = [],
-      shouldContinue = true,
       destroyed = false,
       awaitingPromise = false,
       currentStream = null,
