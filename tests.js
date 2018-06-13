@@ -201,6 +201,16 @@ describe("stream-template", function() {
     out.destroy();
   });
 
+  it("should destroy source streams on Promise error", function(done) {
+    var promise = Promise.reject(Error("destroyed"));
+    var out = ST`${promise} world`;
+
+    out.on("error", function(err) {
+      expect(err.message).equal("destroyed");
+      done();
+    });
+  });
+
   it("should handle undefined interpolations", function(done) {
     var name = "tom";
     var test = undefined;
