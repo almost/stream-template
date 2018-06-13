@@ -18,10 +18,16 @@ function makeForEncoding(encoding) {
       wantsData = false,
       currentStreamHasData = false;
 
-    function forwardDestroy(stream) {
-      eos(stream, err => {
-        if (err) readable.destroy(err);
-      });
+    function forwardDestroy(streamOrPromise) {
+      if (streamOrPromise.pipe) {
+        eos(streamOrPromise, err => {
+          if (err) readable.destroy(err);
+        });
+      } else {
+        streamOrPromise.catch(err => {
+          readable.destroy(err);
+        });
+      }
     }
 
     function read(size) {
@@ -115,8 +121,13 @@ function makeForEncoding(encoding) {
       destroyed = true;
 
       for (let i = 0; i < interpolations.length; i++) {
-        if (interpolations[i].pipe && interpolations[i].destroy) {
-          interpolations[i].destroy();
+        var interpolation = interpolations[i];
+        if (
+          interpolation != null &&
+          interpolation.pipe &&
+          interpolation.destroy
+        ) {
+          interpolation.destroy();
         }
       }
 
@@ -126,10 +137,11 @@ function makeForEncoding(encoding) {
 
     queue.push(strings[0]);
     for (let i = 0; i < interpolations.length; i++) {
-      // is stream, error handle right away
-      if (interpolations[i] != null && interpolations[i].pipe)
-        forwardDestroy(interpolations[i]);
-      queue.push(interpolations[i]);
+      var interpolation = interpolations[i];
+      // is stream or promise, error handle right away
+      if (interpolation != null && (interpolation.pipe || interpolation.then))
+        forwardDestroy(interpolation);
+      queue.push(interpolation);
       queue.push(strings[i + 1]);
     }
 
