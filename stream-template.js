@@ -93,16 +93,11 @@ function makeForEncoding(encoding) {
             } else {
               // Promise!
               awaitingPromise = true;
-              item.then(
-                result => {
-                  awaitingPromise = false;
-                  queue.unshift(result);
-                  read();
-                },
-                err => {
-                  readable.destroy(err);
-                }
-              );
+              item.then(result => {
+                awaitingPromise = false;
+                queue.unshift(result);
+                read();
+              });
             }
             // Exit out of this loop (we'll have called read again if needed)
             return;
