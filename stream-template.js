@@ -60,9 +60,14 @@ function makeForEncoding(encoding) {
         }
         let item = queue.shift();
         if (item != null) {
-          if (Array.isArray(item)) {
+          if (typeof item === "string") {
+            // Combine plain strings together to avoid extra chunks
+            stringBuffer.push(new Buffer("" + item, encoding));
+          } else if (Array.isArray(item)) {
             queue = item.concat(queue);
-          } else if ((typeof item === "object" && item.then) || item.pipe) {
+          } else if (Buffer.isBuffer(item)) {
+            stringBuffer.push(item);
+          } else {
             if (stringBuffer.length) {
               queue.unshift(item);
               let toWrite = Buffer.concat(stringBuffer);
@@ -101,11 +106,6 @@ function makeForEncoding(encoding) {
             }
             // Exit out of this loop (we'll have called read again if needed)
             return;
-          } else if (Buffer.isBuffer(item)) {
-            stringBuffer.push(item);
-          } else {
-            // Combine plain strings together to avoid extra chunks
-            stringBuffer.push(new Buffer("" + item, encoding));
           }
         }
       }
