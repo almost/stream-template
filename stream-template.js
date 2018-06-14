@@ -19,7 +19,7 @@ function makeForEncoding(encoding) {
       readable;
 
     function forwardDestroy(streamOrPromise) {
-      if (streamOrPromise.pipe) {
+      if (isStream(streamOrPromise)) {
         eos(streamOrPromise, err => {
           if (err) readable.destroy(err);
         });
@@ -67,6 +67,7 @@ function makeForEncoding(encoding) {
             queue = item.concat(queue);
           } else if (Buffer.isBuffer(item)) {
             stringBuffer.push(item);
+            // stream or Promise
           } else {
             if (stringBuffer.length) {
               queue.unshift(item);
@@ -77,7 +78,7 @@ function makeForEncoding(encoding) {
               }
               return;
             }
-            if (item.pipe) {
+            if (isStream(item)) {
               currentStream = new PassThrough();
               currentStreamHasData = false;
               item.pipe(currentStream);
@@ -117,11 +118,7 @@ function makeForEncoding(encoding) {
 
       for (let i = 0; i < interpolations.length; i++) {
         const interpolation = interpolations[i];
-        if (
-          interpolation != null &&
-          interpolation.pipe &&
-          interpolation.destroy
-        ) {
+        if (isStream(interpolation)) {
           interpolation.destroy();
         }
       }
@@ -134,7 +131,7 @@ function makeForEncoding(encoding) {
     for (let i = 0; i < interpolations.length; i++) {
       const interpolation = interpolations[i];
       // is stream or promise, error handle right away
-      if (interpolation != null && (interpolation.pipe || interpolation.then))
+      if (isStream(interpolation) || isPromise(interpolation))
         forwardDestroy(interpolation);
       queue.push(interpolation);
       queue.push(strings[i + 1]);
@@ -143,6 +140,14 @@ function makeForEncoding(encoding) {
     readable = new Readable({ read, destroy });
     return readable;
   };
+}
+
+function isStream(stream) {
+  return stream != null && stream.pipe != null;
+}
+
+function isPromise(promise) {
+  return promise != null && promise.then != null;
 }
 
 module.exports = makeForEncoding("utf8");
