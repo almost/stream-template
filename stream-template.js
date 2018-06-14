@@ -1,8 +1,8 @@
 "use strict";
-var eos = require("end-of-stream");
-var stream = require("readable-stream");
-var PassThrough = stream.PassThrough;
-var Readable = stream.Readable;
+const eos = require("end-of-stream");
+const stream = require("readable-stream");
+const PassThrough = stream.PassThrough;
+const Readable = stream.Readable;
 
 // Use template literals to allow a template where the variables are streams,
 // the output as a whole is also a stream.
@@ -15,7 +15,8 @@ function makeForEncoding(encoding) {
       awaitingPromise = false,
       currentStream = null,
       wantsData = false,
-      currentStreamHasData = false;
+      currentStreamHasData = false,
+      readable;
 
     function forwardDestroy(streamOrPromise) {
       if (streamOrPromise.pipe) {
@@ -115,7 +116,7 @@ function makeForEncoding(encoding) {
       destroyed = true;
 
       for (let i = 0; i < interpolations.length; i++) {
-        var interpolation = interpolations[i];
+        const interpolation = interpolations[i];
         if (
           interpolation != null &&
           interpolation.pipe &&
@@ -131,7 +132,7 @@ function makeForEncoding(encoding) {
 
     queue.push(strings[0]);
     for (let i = 0; i < interpolations.length; i++) {
-      var interpolation = interpolations[i];
+      const interpolation = interpolations[i];
       // is stream or promise, error handle right away
       if (interpolation != null && (interpolation.pipe || interpolation.then))
         forwardDestroy(interpolation);
@@ -139,7 +140,7 @@ function makeForEncoding(encoding) {
       queue.push(strings[i + 1]);
     }
 
-    var readable = new Readable({ read, destroy });
+    readable = new Readable({ read, destroy });
     return readable;
   };
 }
