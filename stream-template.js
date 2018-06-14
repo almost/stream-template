@@ -21,7 +21,9 @@ function makeForEncoding(encoding) {
     function forwardDestroy(streamOrPromise) {
       if (isStream(streamOrPromise)) {
         eos(streamOrPromise, err => {
-          if (err) readable.destroy(err);
+          if (err) {
+            readable.destroy(err);
+          }
         });
       } else {
         streamOrPromise.catch(err => {
@@ -31,7 +33,9 @@ function makeForEncoding(encoding) {
     }
 
     function read(size) {
-      if (destroyed) return;
+      if (destroyed) {
+        return;
+      }
       wantsData = true;
       if (currentStream) {
         if (currentStreamHasData) {
@@ -45,7 +49,9 @@ function makeForEncoding(encoding) {
         }
         return;
       }
-      if (awaitingPromise) return;
+      if (awaitingPromise) {
+        return;
+      }
       while (!destroyed) {
         if (queue.length === 0) {
           if (stringBuffer.length) {
@@ -113,7 +119,9 @@ function makeForEncoding(encoding) {
     }
 
     function destroy(err) {
-      if (destroyed) return;
+      if (destroyed) {
+        return;
+      }
       destroyed = true;
 
       for (let i = 0; i < interpolations.length; i++) {
@@ -123,7 +131,9 @@ function makeForEncoding(encoding) {
         }
       }
 
-      if (err) readable.emit("error", err);
+      if (err) {
+        readable.emit("error", err);
+      }
       readable.emit("close");
     }
 
@@ -131,8 +141,9 @@ function makeForEncoding(encoding) {
     for (let i = 0; i < interpolations.length; i++) {
       const interpolation = interpolations[i];
       // is stream or promise, error handle right away
-      if (isStream(interpolation) || isPromise(interpolation))
+      if (isStream(interpolation) || isPromise(interpolation)) {
         forwardDestroy(interpolation);
+      }
       queue.push(interpolation);
       queue.push(strings[i + 1]);
     }
