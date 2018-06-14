@@ -16,7 +16,7 @@ function makeForEncoding(encoding) {
       currentStream = null,
       wantsData = false,
       currentStreamHasData = false,
-      readable;
+      readable = null;
 
     function forwardDestroy(streamOrPromise) {
       if (isStream(streamOrPromise)) {
@@ -40,7 +40,7 @@ function makeForEncoding(encoding) {
       if (currentStream) {
         if (currentStreamHasData) {
           currentStreamHasData = false;
-          let chunk = currentStream.read();
+          const chunk = currentStream.read();
           if (chunk != null) {
             if (readable.push(chunk) === false) {
               wantsData = false;
@@ -55,7 +55,7 @@ function makeForEncoding(encoding) {
       while (!destroyed) {
         if (queue.length === 0) {
           if (stringBuffer.length) {
-            let toWrite = Buffer.concat(stringBuffer);
+            const toWrite = Buffer.concat(stringBuffer);
             stringBuffer.length = 0;
             if (readable.push(toWrite) === false) {
               return;
@@ -77,7 +77,7 @@ function makeForEncoding(encoding) {
           } else {
             if (stringBuffer.length) {
               queue.unshift(item);
-              let toWrite = Buffer.concat(stringBuffer);
+              const toWrite = Buffer.concat(stringBuffer);
               stringBuffer.length = 0;
               if (readable.push(toWrite) !== false) {
                 read();
