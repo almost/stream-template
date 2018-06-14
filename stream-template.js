@@ -1,6 +1,7 @@
 "use strict";
 const eos = require("end-of-stream");
 const stream = require("readable-stream");
+// No destructuring until Node 6
 const PassThrough = stream.PassThrough;
 const Readable = stream.Readable;
 
@@ -8,6 +9,7 @@ const Readable = stream.Readable;
 // the output as a whole is also a stream.
 function makeForEncoding(encoding) {
   return function StreamTemplate(strings /*, ...interpolations*/) {
+    // No rest params until Node 6
     const interpolations = Array.prototype.slice.call(arguments, 1);
     let queue = [],
       stringBuffer = [],
@@ -32,7 +34,7 @@ function makeForEncoding(encoding) {
       }
     }
 
-    function read(size) {
+    function read() {
       if (destroyed) {
         return;
       }
@@ -68,7 +70,8 @@ function makeForEncoding(encoding) {
         if (item != null) {
           if (typeof item === "string") {
             // Combine plain strings together to avoid extra chunks
-            stringBuffer.push(new Buffer("" + item, encoding));
+            // Buffer.from() available in Node 6
+            stringBuffer.push(new Buffer(`${item}`, encoding));
           } else if (Array.isArray(item)) {
             queue = item.concat(queue);
           } else if (Buffer.isBuffer(item)) {
@@ -140,7 +143,7 @@ function makeForEncoding(encoding) {
     queue.push(strings[0]);
     for (let i = 0; i < interpolations.length; i++) {
       const interpolation = interpolations[i];
-      // is stream or promise, error handle right away
+      // If is stream or Promise, error handle right away
       if (isStream(interpolation) || isPromise(interpolation)) {
         forwardDestroy(interpolation);
       }
