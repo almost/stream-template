@@ -1,5 +1,4 @@
-stream-template
-===============
+# stream-template
 
 An ES6/ES2015 [Tagged String
 Literal](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals)
@@ -18,23 +17,20 @@ Written by Thomas Parslow ([almostobsolete.net](http://almostobsolete.net) and
 
 Warning: will only run on newer versions of Node.JS (tested on 4.0.0 and above)
 
-
-Install
--------
+## Install
 
 ```bash
 npm install --save stream-template
 ```
 
-Examples
---------
+## Examples
 
 ```javascript
-var ST = require('stream-template');
+const ST = require("stream-template");
 
-let data1 = fs.createReadStream('data1.txt');
-let data2 = fs.createReadStream('data2.txt');
-let output = ST`<html>
+const data1 = fs.createReadStream("data1.txt");
+const data2 = fs.createReadStream("data2.txt");
+const output = ST`<html>
   1: <pre>${data1}</pre>
   2: <pre>${data2}</pre>
 </html>`;
@@ -45,52 +41,53 @@ Can also accept arrays (items are concatenated, array items can be any of the
 supported types):
 
 ```javascript
-var ST = require('stream-template');
+const ST = require("stream-template");
 
-let data = [fs.createReadStream('part1.txt'), fs.createReadStream('part2.txt')];
-let output = ST`Data follows: ${data}`;
+const data = [
+  fs.createReadStream("part1.txt"),
+  fs.createReadStream("part2.txt")
+];
+const output = ST`Data follows: ${data}`;
 output.pipe(process.stdout);
 ```
 
 And also Promises:
 
 ```javascript
-var ST = require('./stream-template');
-var fetch = require('node-fetch');
+const ST = require("./stream-template");
+const fetch = require("node-fetch");
 
-var email = fetch('https://api.github.com/users/almost')
-    .then(r => r.json())
-    .then((profile) => {
-      return profile.email;
-    });
+const email = fetch("https://api.github.com/users/almost")
+  .then(r => r.json())
+  .then(profile => {
+    return profile.email;
+  });
 
-let output = ST`<a href="mailto:${email}">Email</a>`;
+const output = ST`<a href="mailto:${email}">Email</a>`;
 output.pipe(process.stdout);
 ```
 
 And of course regular strings work:
 
 ```javascript
-let output = ST`Hello by name is ${name}`;
+const output = ST`Hello by name is ${name}`;
 output.pipe(process.stdout);
 ```
 
 I've shown each used seperated but you can do it all mixed together as well.
 
-Encoding
---------
+## Encoding
 
 By default strings are encoded as utf-8, you can change the encoding like this:
 
 ```javascript
-var ST = require('stream-template').encoding('utf16le');
+const ST = require("stream-template").encoding("utf16le");
 ```
 
 Note that buffers and other streams are passed through as-is, the encoding only
-effects the template strings and interpolated strings. 
+effects the template strings and interpolated strings.
 
-Contributing
-------------
+## Contributing
 
 Fixed or improved stuff? Great! Send me a pull request [through GitHub](http://github.com/almost/stream-template)
 or get in touch on Twitter [@almostobsolete](https://twitter.com/almostobsolete) or email at tom@almostobsolete.net
