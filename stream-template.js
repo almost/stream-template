@@ -1,16 +1,10 @@
 "use strict";
-const stream = require("readable-stream");
-// No destructuring until Node 6
-const finished = stream.finished;
-const PassThrough = stream.PassThrough;
-const Readable = stream.Readable;
+const { finished, PassThrough, Readable } = require("readable-stream");
 
 // Use template literals to allow a template where the variables are streams,
 // the output as a whole is also a stream.
 function makeForEncoding(encoding) {
-  return function StreamTemplate(strings /*, ...interpolations*/) {
-    // No rest params until Node 6
-    const interpolations = Array.prototype.slice.call(arguments, 1);
+  return function StreamTemplate(strings, ...interpolations) {
     let queue = [],
       stringBuffer = [],
       destroyed = false,
@@ -70,8 +64,7 @@ function makeForEncoding(encoding) {
         if (item != null) {
           if (typeof item === "string") {
             // Combine plain strings together to avoid extra chunks
-            // Buffer.from() available in Node 6
-            stringBuffer.push(new Buffer(`${item}`, encoding));
+            stringBuffer.push(Buffer.from(`${item}`, encoding));
           } else if (Array.isArray(item)) {
             queue = item.concat(queue);
           } else if (Buffer.isBuffer(item)) {
