@@ -194,7 +194,7 @@ describe("stream-template", function() {
 
     const out = ST`${s}`;
 
-    s.on("close", function() {
+    out.on("error", function() {
       expect(destroyed).equal(true);
       done();
     });
