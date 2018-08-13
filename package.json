@@ -1,16 +1,20 @@
 {
   "name": "stream-template",
   "version": "0.0.10",
-  "description":
-    "An ES6 Tagged String Literal tag that can interpolate Node.JS streams, strings, arrays and Promises and produces a stream.,",
+  "description": "An ES6 Tagged String Literal tag that can interpolate Node.JS streams, strings, arrays and Promises and produces a stream.,",
   "main": "stream-template.js",
-  "files": ["stream-template.js"],
+  "files": [
+    "stream-template.js"
+  ],
   "scripts": {
     "test": "mocha tests.js",
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.{js,json,css,md}": ["prettier --write", "git add"]
+    "*.{js,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
@@ -41,9 +45,9 @@
     "concat-stream": "^1.6.2",
     "expect.js": "^0.3.1",
     "husky": "^0.14.3",
-    "lint-staged": "^7.2.0",
+    "lint-staged": "^7.2.2",
     "mocha": "^2.2.1",
-    "prettier": "^1.13.5"
+    "prettier": "^1.14.2"
   },
   "dependencies": {
     "end-of-stream": "^1.4.1",
