@@ -1,7 +1,7 @@
 "use strict";
-const eos = require("end-of-stream");
 const stream = require("readable-stream");
 // No destructuring until Node 6
+const finished = stream.finished;
 const PassThrough = stream.PassThrough;
 const Readable = stream.Readable;
 
@@ -22,7 +22,7 @@ function makeForEncoding(encoding) {
 
     function forwardDestroy(streamOrPromise) {
       if (isStream(streamOrPromise)) {
-        eos(streamOrPromise, err => {
+        finished(streamOrPromise, err => {
           if (err) {
             readable.destroy(err);
           }
